@@ -44,19 +44,26 @@ public class ImageExtractor {
         return path.toString().toLowerCase().endsWith(".pdf");
     }
 
-    private void exportImage(Path pdfFilePath, Path resultPath) {
+    private void exportImage(Path pdfFilePath, Path resultPath, boolean onlyFirstPage) {
         String pdfFilename = pdfFilePath.normalize().toString();
         logger.info("Exporting " + pdfFilename);
         try (PDDocument document = PDDocument.load(new File(pdfFilename))) {
             PDFRenderer pdfRenderer = new PDFRenderer(document);
             for (int page = 0; page < document.getNumberOfPages(); ++page) {
-                BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.RGB);
-                ImageIOUtil.writeImage(bim, buildPngFileName(pdfFilePath, resultPath, page), DPI);
+                exportContentsOfPage(pdfFilePath, resultPath, pdfRenderer, page);
+                if (onlyFirstPage) {
+                    break;
+                }
             }
         } catch (IOException e) {
             final String message = String.format("Error exporting image %s", pdfFilename);
             logger.error(message, e);
         }
+    }
+
+    private void exportContentsOfPage(Path pdfFilePath, Path resultPath, PDFRenderer pdfRenderer, int page) throws IOException {
+        BufferedImage bim = pdfRenderer.renderImageWithDPI(page, DPI, ImageType.RGB);
+        ImageIOUtil.writeImage(bim, buildPngFileName(pdfFilePath, resultPath, page), DPI);
     }
 
     private String buildPngFileName(Path pdfFilePath, Path resultPath, int page) {
@@ -74,6 +81,6 @@ public class ImageExtractor {
         Files.list(Paths.get(sourceDirectory))
                 .filter(Files::isRegularFile)
                 .filter(this::isPdfFile)
-                .forEach(p -> exportImage(p, Paths.get(destinationDirectory)));
+                .forEach(p -> exportImage(p, Paths.get(destinationDirectory), true));
     }
 }
