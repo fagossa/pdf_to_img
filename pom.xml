@@ -51,7 +51,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>fr.xebia.ImageExtractor</mainClass>
+                            <mainClass>fr.xebia.Executor</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -71,7 +71,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>fr.xebia.ImageExtractor</mainClass>
+                                    <mainClass>fr.xebia.Executor</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
