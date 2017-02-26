@@ -1,7 +1,7 @@
 package fr.xebia;
 
 import fr.xebia.export.BufferedImageExporter;
-import fr.xebia.filter.AllowAllFilter;
+import fr.xebia.filter.ImageFrequencyFilter;
 import fr.xebia.img.ImageExtractor;
 import fr.xebia.transform.PageToBufferedImage;
 
@@ -17,7 +17,7 @@ public class Executor {
                     .runWith(
                             new PageToBufferedImage(),
                             new BufferedImageExporter(),
-                            new AllowAllFilter());
+                            new ImageFrequencyFilter());
         } else {
             System.out.println("No import or export directory specified. Usage: java -jar pdf_to_img.jar {input_dir} {output_dir}");
             System.exit(1);

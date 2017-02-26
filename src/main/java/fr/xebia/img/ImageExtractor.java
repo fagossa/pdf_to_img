@@ -1,6 +1,7 @@
 package fr.xebia.img;
 
 import fr.xebia.export.FileExporter;
+import fr.xebia.filter.TriPredicate;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class ImageExtractor {
     private void exportImage(Path pdfFilePath,
                              Path resultPath,
                              BiFunction<PDFRenderer, Integer, Optional<BufferedImage>> transformer,
-                             BiPredicate<BufferedImage, Integer> fileExporterFilter,
+                             TriPredicate<BufferedImage, Path, Integer> fileExporterFilter,
                              FileExporter<BufferedImage> exporter) {
         String pdfFilename = pdfFilePath.normalize().toString();
         logger.info("Exporting " + pdfFilename);
@@ -46,7 +47,7 @@ public class ImageExtractor {
                 final int actualPage = page;
                 transformer
                         .apply(pdfRenderer, page)
-                        .filter(bufferedImage -> fileExporterFilter.test(bufferedImage, actualPage))
+                        .filter(bufferedImage -> fileExporterFilter.test(bufferedImage, pdfFilePath, actualPage))
                         .ifPresent(bufferedImage -> exporter.apply(bufferedImage, pdfFilePath, resultPath, actualPage));
             }
         } catch (IOException e) {
@@ -57,7 +58,7 @@ public class ImageExtractor {
 
     public void runWith(BiFunction<PDFRenderer, Integer, Optional<BufferedImage>> transformer,
                         FileExporter<BufferedImage> fileExporter,
-                        BiPredicate<BufferedImage, Integer> fileExporterFilter) throws IOException {
+                        TriPredicate<BufferedImage, Path, Integer> fileExporterFilter) throws IOException {
         Files.list(Paths.get(sourceDirectory))
                 .filter(Files::isRegularFile)
                 .filter(this::isPdfFile)
