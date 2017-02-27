@@ -52,15 +52,18 @@ public class ImageFrequencyFilter implements TriPredicate<BufferedImage, Path, I
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 //we calculate complex number vector length (sqrt(Re**2 + Im**2)). But these lengths are to big to
-                //fit in 0 - 255 scale of colors. So I divide it on 223. Instead of "223", you may want to choose
-                //another factor, wich would make you frequency domain look best
-                int power = (int) (Math.sqrt(Math.pow(brightness[y][2 * x], 2) + Math.pow(brightness[y][2 * x + 1], 2)) / 223);
-                power = power > 255 ? 255 : power;
+                //fit in 0 - 255 scale of colors. So I divide it on 223
+                int rawPower = calculateRawPower(brightness, y, x);
+                int power = rawPower > 255 ? 255 : rawPower;
                 //draw a grayscale color on image "fd"
                 fd.setRGB(x, y, new Color(power, power, power).getRGB());
             }
         }
         return fd;
+    }
+
+    private int calculateRawPower(double[][] brightness, int y, int x) {
+        return (int) (Math.sqrt(Math.pow(brightness[y][2 * x], 2) + Math.pow(brightness[y][2 * x + 1], 2)) / 223);
     }
 
     private int brightnessRGB(int rgb) {
